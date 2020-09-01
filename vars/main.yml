@@ -1,0 +1,8 @@
+---
+# vars file for mosquitto
+tmp_password_file: /tmp/mosquitto_passwords
+mosquitto_conf_path: /etc/mosquitto
+mosquitto_password_file: "{{mosquitto_conf_path}}/passwords"
+mosquitto_ssl_cafile: "{{mosquitto_conf_path}}/ca_certificates/ca.crt"
+mosquitto_ssl_certfile: "{{mosquitto_conf_path}}/certs/mqtt.crt"
+mosquitto_ssl_keyfile: "{{mosquitto_conf_path}}/certs/mqtt.key"

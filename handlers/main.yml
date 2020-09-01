@@ -1,0 +1,6 @@
+---
+# handlers file for mosquitto
+- name: restart mosquitto server
+  systemd:
+    name: mosquitto
+    state: restarted

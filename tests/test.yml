@@ -1,0 +1,11 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - role: mosquitto
+      mosquitto_credentials:
+        - login: user
+          password: password
+      mosquitto_ca_file: ca.cert
+      mosquitto_cert_file: file.cert
+      mosquitto_key_file: file.key

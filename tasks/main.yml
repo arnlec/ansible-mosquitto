@@ -1,0 +1,78 @@
+---
+# tasks file for mosquitto
+
+- name: Check OS distribution
+  fail: 
+    msg: "{{ansible_distribution}} is not supported"
+  when: ansible_distribution != "Debian"
+
+- name: install mosquitto server
+  apt:
+    name: 
+      - python-apt
+      - mosquitto
+    state: latest
+
+- name: generate mqtt password file
+  template:
+    src: mosquitto_password.j2
+    dest: "{{ tmp_password_file }}"
+  when: mosquitto_credentials is defined
+
+- name: hash mosquitto password file
+  command: "/usr/bin/mosquitto_passwd -U {{ tmp_password_file }}"  
+  when: mosquitto_credentials is defined
+
+- name: copy mosquitto password file
+  copy:
+    src: "{{tmp_password_file}}"
+    dest: "{{mosquitto_password_file}}"
+    remote_src: yes
+  notify: restart mosquitto server
+
+- name: delete tmp file
+  file:
+    path: "{{ tmp_password_file }}"
+    state: absent
+
+- name: configure mosquitto authentification
+  template:
+    src: mosquitto_auth.conf.j2
+    dest: /etc/mosquitto/conf.d/auth.conf
+  notify: restart mosquitto server 
+
+- name: configure ssl
+  template:
+    src: mosquitto_ssl.conf.j2
+    dest: /etc/mosquitto/conf.d/ssl.conf
+  notify: restart mosquitto server
+
+- name: copy CA certificate
+  copy:
+    src: "{{mosquitto_ca_file}}"
+    dest: "{{mosquitto_ssl_cafile}}"
+  notify: restart mosquitto server
+
+- name: copy mosquitto certificate
+  copy: 
+    src: "{{mosquitto_cert_file}}"
+    dest: "{{mosquitto_ssl_certfile}}"
+    owner: mosquitto
+    mode: 0700
+  notify: restart mosquitto server
+    
+- name: copy mosquitto key
+  copy: 
+    src: "{{mosquitto_key_file}}"
+    dest: "{{mosquitto_ssl_keyfile}}"
+    owner: mosquitto
+    mode: 0700
+  notify: restart mosquitto server
+    
+- name: start mosquitto server
+  systemd:
+    name: mosquitto
+    state: started
+    enabled: yes
+
+

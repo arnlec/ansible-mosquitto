@@ -1,0 +1,6 @@
+{%if mosquitto_credentials is defined%}
+allow_anonymous false
+password_file {{ mosquitto_password_file }}
+{%else%}
+allow_anonymous true
+{%endif%}
